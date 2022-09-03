@@ -5,13 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon index.js",
-    "start": "node index.js",
-    "init-privatenet": "./geth --datadir ./privatenet/ init ./privatenet/config/genesis.json",
-    "privatenet": "./geth --identity \"InnoNode\" --rpc --rpcport \"8545\" --rpccorsdomain \"*\" --datadir ./privatenet/ --port \"30303\" --nodiscover --rpcapi \"db,eth,net,web3\" --networkid 15 --nat \"any\" --mine --miner.threads 1 --targetgaslimit 8000000 --miner.gaslimit 21000 --gasprice 0",
-    "init-mainnet": "./geth --datadir ./mainnet/ init ./mainnet/config/genesis.json",
-    "mainnet": "./geth --config ./mainnet/config/config.toml --datadir ./mainnet/ --pprofaddr 0.0.0.0 --metrics --pprof --rpc --rpcport \"8545\"",
-    "init-testnet": "./geth --datadir ./testnet/ init ./testnet/config/genesis.json",
-    "testnet": "./geth --config ./testnet/config/config.toml --datadir ./testnet/ --pprofaddr 0.0.0.0 --metrics --pprof --rpc --rpcport \"8545\""
+    "start": "node index.js"
   },
   "author": "",
   "license": "ISC",
