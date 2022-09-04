@@ -8,9 +8,9 @@ module.exports = {
     let pool_id = req.query.pool_id;
     let address = req.query.address;
 
-    if (pool_id === undefined || pool_id === null || pool_id.length != 32) {
+    if (pool_id === undefined || pool_id === null || pool_id.length != 66) {
       res.status(400)
-      res.send({ "err": "pool_id not correct" });
+      res.send({ "err": `pool_id not correct ${pool_id}` });
       return;
     }
 
@@ -20,18 +20,26 @@ module.exports = {
       return;
     }
 
-    let list = JSON.parse(fs.readFileSync('whitelist.json', 'utf8'));
+    let path = `whitelist/${pool_id}.json`;
 
-    if (list.pool_id !== pool_id) {
+    let list;
+    try {
+      list = JSON.parse(fs.readFileSync(path, 'utf8'));
+
+      if (list.pool_id !== pool_id) {
+        res.status(400)
+        res.send({ "err": "pool_id not found" });
+        return;
+      }
+    } catch (err) {
       res.status(400)
-      res.send({ "err": "pool_id not found" });
+      res.send({ "err": err.message });
       return;
     }
 
     let whitelist = list.whitelist;
 
     let whitelist_address = whitelist.find(e => e == address);
-
     try {
       if (whitelist_address !== undefined && address === whitelist_address) {
         res.json(true);
