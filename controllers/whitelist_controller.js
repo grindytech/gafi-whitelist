@@ -8,7 +8,7 @@ module.exports = {
     let pool_id = req.query.pool_id;
     let address = req.query.address;
 
-    if (pool_id === undefined || pool_id === null || pool_id.length != 66) {
+    if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
       res.status(400)
       res.send({ "err": `pool_id not correct ${pool_id}` });
       return;
