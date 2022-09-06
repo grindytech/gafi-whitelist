@@ -10,6 +10,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@polkadot/keyring": "^10.1.7",
     "babel-polyfill": "6.26.0",
     "babel-register": "^6.26.0",
     "cors": "^2.8.5",
@@ -18,5 +19,8 @@
     "node-verge": "^0.3.9",
     "nodemon": "^2.0.4",
     "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "jest": "^29.0.2"
   }
 }

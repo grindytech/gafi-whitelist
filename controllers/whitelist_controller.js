@@ -1,12 +1,13 @@
 const fs = require('fs');
 const dotenv = require("dotenv");
+const { hex_to_ss58 } = require('../utils/key-util');
 dotenv.config();
 
 
 module.exports = {
   verify: async function (req, res) {
     let pool_id = req.query.pool_id;
-    let address = req.query.address;
+    let address = hex_to_ss58("0x" + req.query.address, 42);
 
     if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
       res.status(400)
