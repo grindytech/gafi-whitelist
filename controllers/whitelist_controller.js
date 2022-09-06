@@ -7,7 +7,7 @@ dotenv.config();
 module.exports = {
   verify: async function (req, res) {
     let pool_id = req.query.pool_id;
-    let address = hex_to_ss58("0x" + req.query.address, 42);
+    let address = hex_to_ss58(req.query.address, 42);
 
     if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
       res.status(400)
