@@ -12,6 +12,7 @@
   - [create](#create)
   - [add](#add)
   - [verify](#verify)
+  - [get](#get)
 
 ## Quick Start
 
@@ -60,7 +61,7 @@ request:
 successResponse: "create file success"
 ```
 
-| ResponseField  | Type | Description |
+| RequestField  | Type | Description |
 | ------------- | ------------- | ------------- |
 | pool_id | string  |  64 characters |
 | address | [string]  |  list of valid address(hex string)|
@@ -86,7 +87,7 @@ description: add new address to whitelist
 successResponse: true
 
 ```
-| ResponseField  | Type | Description |
+| RequestField  | Type | Description |
 | ------------- | ------------- | ------------- |
 | pool_id | string  |  64 characters |
 | address | [string]  |  list of valid address(hex string)|
@@ -103,8 +104,29 @@ method: GET
 
 successResponse: true
 ```
-| ResponseField  | Type | Description |
+| RequestField  | Type | Description |
 | ------------- | ------------- | ------------- |
 | pool_id | string  |  64 characters |
 | address | string  |  valid address(hex string)|
+
+
+
+### get
+
+ ```
+url: /whitelist/get?pool_id={}
+
+example: http://whitelist.gafi.network/whitelist/get?pool_id=3bf5f0bc42626c7c630507f607fe85b344f9b857579c0c9ffd322611b6cd1275
+method: GET
+
+successResponse:
+[
+    "0x4a1fb7f41007295aa73476541986e12b976c47907e3bce162b835e46a9a3ff0b",
+    "0x58880deb6e45ea913801786036f0183d8357104647501dfec35c7eebca7a0406"
+]
+
+```
+| RequestField  | Type | Description |
+| ------------- | ------------- | ------------- |
+| pool_id | string  |  64 characters |
 
