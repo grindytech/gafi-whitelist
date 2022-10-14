@@ -1,3 +1,4 @@
+const { validateAddress } = require('@polkadot/util-crypto');
 var chai = require('chai');
 var expect = chai.expect;
 
@@ -12,6 +13,11 @@ describe('Whitelist', () => {
     it('should get valid ss58 address', function (done) {
 
         expect(hex_to_ss58("d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", 42)).to.equal("5GrwvaEF5zXb26Fz9rcQpDWS57CtERHpNehXCPcNoHGKutQY");
+        done();
+    })
+
+    it('it should validate address', function (done) {
+        expect(validateAddress("0xd43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d", false, 42)).to.equal(true);
         done();
     })
 })

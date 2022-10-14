@@ -1,23 +1,32 @@
 const fs = require('fs');
 const dotenv = require("dotenv");
 const { hex_to_ss58 } = require('../utils/key-util');
+const { validateAddress } = require('@polkadot/util-crypto');
 dotenv.config();
 
 
 module.exports = {
   verify: async function (req, res) {
     let pool_id = req.query.pool_id;
-    let address = hex_to_ss58(req.query.address, 42);
+    let address = req.query.address;
 
+    // validate pool_id
     if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
       res.status(400)
       res.send({ "err": `pool_id not correct ${pool_id}` });
       return;
     }
 
-    if (address === undefined || address === null || address.length != 48) {
+    // validate address
+    try {
+      if (validateAddress(address) == false) {
+        res.status(400)
+        res.send({ "err": `invalid address` });
+        return;
+      }
+    } catch (err) {
       res.status(400)
-      res.send({ "err": "address not correct" });
+      res.send({ "err": `invalid address: ${err.message()}` });
       return;
     }
 
@@ -25,16 +34,19 @@ module.exports = {
 
     let list;
     try {
-      list = JSON.parse(fs.readFileSync(path, 'utf8'));
+
+      let content = fs.readFileSync(path, 'utf8');
+
+      list = JSON.parse(content);
 
       if (list.pool_id !== pool_id) {
         res.status(400)
-        res.send({ "err": "pool_id not found" });
+        res.send({ err: "pool_id not found" });
         return;
       }
     } catch (err) {
       res.status(400)
-      res.send({ "err": err.message });
+      res.send({ err: `fail parse whitelist file ${err}` });
       return;
     }
 
@@ -49,8 +61,57 @@ module.exports = {
       }
     } catch (err) {
       res.status(500)
-      res.send({ "err": err.message });
+      res.send({ err: "fail to verify whitelist" });
       return;
     }
   },
+
+  add: async function (req, res) {
+    let pool_id = req.query.pool_id;
+    let address = req.query.address;
+
+    // validate pool_id
+    if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
+      res.status(400)
+      res.send({ "err": `pool_id not correct ${pool_id}` });
+      return;
+    }
+
+    // validate address
+    try {
+      if (validateAddress(address) == false) {
+        res.status(400)
+        res.send({ "err": `invalid address` });
+        return;
+      }
+    } catch (err) {
+      res.status(400)
+      res.send({ "err": `invalid address: ${err.message}` });
+      return;
+    }
+
+    let path = `whitelist/${pool_id}.json`;
+
+    let list;
+    try {
+      list = JSON.parse(fs.readFileSync(path, 'utf8'));
+
+      if (list.pool_id !== pool_id) {
+        res.status(400)
+        res.send({ "err": "pool_id not found" });
+        return;
+      }
+
+      list.whitelist.push(address);
+
+      var json = JSON.stringify(list);
+      fs.writeFileSync(path, json);
+    } catch (err) {
+      res.status(400)
+      res.send({ "can not add new address": err.message });
+      return;
+    }
+    res.status(200);
+    res.json(true);
+  }
 }
