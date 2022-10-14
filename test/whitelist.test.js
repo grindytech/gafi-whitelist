@@ -9,6 +9,7 @@ const { u8aToHex } = require('@polkadot/util');
 
 chai.use(chaiHttp);
 var POOL_ID;
+let MAX_ADDR = 2;
 
 //Our parent block
 describe('Whitelist', () => {
@@ -27,7 +28,6 @@ describe('Whitelist', () => {
             let pool_id = genRanHex(64);
             POOL_ID = pool_id;
 
-            let MAX_ADDR = 2;
             let address = [];
             for (let i = 0; i < MAX_ADDR; i++) {
                 let seed = mnemonicGenerate();
@@ -57,13 +57,12 @@ describe('Whitelist', () => {
                 .end((err, res) => {
                     expect(res.status).to.equal(400, JSON.stringify(res.body));
                 });
-            
+
             done();
         })
 
 
         it('it should add address', (done) => {
-            let MAX_ADDR = 2;
             let address = [];
             for (let i = 0; i < MAX_ADDR; i++) {
                 let seed = mnemonicGenerate();
@@ -93,6 +92,17 @@ describe('Whitelist', () => {
                     });
             }
 
+            done();
+        });
+
+
+        it('it should get address', (done) => {
+            chai.request(server)
+                .get(`/whitelist/get?pool_id=${POOL_ID}`)
+                .end((err, res) => {
+                    expect(res.status).to.equal(200, JSON.stringify(res.body));
+                    expect(res.body.length).to.equal(MAX_ADDR * 2, JSON.stringify(res.body));
+                });
             done();
         });
     });

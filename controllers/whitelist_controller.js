@@ -7,6 +7,42 @@ const PATH = process.env.WHITELIST_PATH || "whitelist";
 
 
 module.exports = {
+  get: async function (req, res) {
+    let pool_id = req.query.pool_id;
+
+    // validate pool_id
+    if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
+      res.status(400)
+      res.send({ "err": `pool_id not correct ${pool_id}` });
+      return;
+    }
+
+    let path = `${PATH}/${pool_id}.json`;
+
+    let list;
+    try {
+
+      let content = fs.readFileSync(path, 'utf8');
+
+      list = JSON.parse(content);
+
+      if (list.pool_id !== pool_id) {
+        res.status(400)
+        res.send({ err: "pool_id not found" });
+        return;
+      }
+    } catch (err) {
+      res.status(400)
+      res.send({ err: `fail parse whitelist file ${err}` });
+      return;
+    }
+
+    let whitelist = list.whitelist;
+
+    res.status(200);
+    res.json(whitelist);
+  },
+
   verify: async function (req, res) {
     let pool_id = req.query.pool_id;
     let address = req.query.address;
