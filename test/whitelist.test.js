@@ -8,6 +8,8 @@ const { Keyring } = require('@polkadot/keyring');
 const { u8aToHex } = require('@polkadot/util');
 
 chai.use(chaiHttp);
+var POOL_ID;
+
 //Our parent block
 describe('Whitelist', () => {
     beforeEach((done) => {
@@ -18,38 +20,80 @@ describe('Whitelist', () => {
      * Test the /GET route
      */
     describe('/GET verify', () => {
-        // it('it should get verify value', (done) => {
-        //     chai.request(server)
-        //         .get('/whitelist/verify?pool_id=3a77d059474c1143d0d9cfc55f1d8601099a37c30c943f2807d6a7aa9eddd386&address=d43593c715fdd31c61141abd04a99fd6822c8558854ccde39a5684e7a56da27d')
-        //         .end((err, res) => {
-        //             res.should.have.status(200);
-        //             expect(res.body).to.equal(true);
-        //             done();
-        //         });
-        // });
+
+        it('it should create whitelist', (done) => {
+            const genRanHex = size => [...Array(size)].map(() => Math.floor(Math.random() * 16).toString(16)).join('');
+
+            let pool_id = genRanHex(64);
+            POOL_ID = pool_id;
+
+            let MAX_ADDR = 2;
+            let address = [];
+            for (let i = 0; i < MAX_ADDR; i++) {
+                let seed = mnemonicGenerate();
+                const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
+                const pair = keyring.addFromUri(seed, { name: 'key pair' }, 'sr25519');
+                const addr_hex = "0x" + u8aToHex(pair.publicKey, undefined, false);
+                address.push(addr_hex);
+            }
+
+            chai.request(server)
+                .post(`/whitelist/create`)
+                .send({
+                    pool_id: pool_id,
+                    address: address
+                })
+                .end((err, res) => {
+                    expect(res.status).to.equal(200, JSON.stringify(res.body));
+                });
+
+
+            chai.request(server)
+                .post(`/whitelist/create`)
+                .send({
+                    pool_id: pool_id,
+                    address: address
+                })
+                .end((err, res) => {
+                    expect(res.status).to.equal(400, JSON.stringify(res.body));
+                });
+            
+            done();
+        })
 
 
         it('it should add address', (done) => {
-
-            let seed = mnemonicGenerate();
-            const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
-            const pair = keyring.addFromUri(seed, { name: 'key pair' }, 'sr25519');
-            const addr_hex = u8aToHex(pair.publicKey, undefined, false);
+            let MAX_ADDR = 2;
+            let address = [];
+            for (let i = 0; i < MAX_ADDR; i++) {
+                let seed = mnemonicGenerate();
+                const keyring = new Keyring({ type: 'sr25519', ss58Format: 42 });
+                const pair = keyring.addFromUri(seed, { name: 'key pair' }, 'sr25519');
+                const addr_hex = "0x" + u8aToHex(pair.publicKey, undefined, false);
+                address.push(addr_hex);
+            }
 
             chai.request(server)
-                .get(`/whitelist/add?pool_id=3a77d059474c1143d0d9cfc55f1d8601099a37c30c943f2807d6a7aa9eddd386&address=0x${addr_hex}`)
+                .post(`/whitelist/add`)
+                .send({
+                    pool_id: POOL_ID,
+                    address: address
+                })
                 .end((err, res) => {
                     expect(res.status).to.equal(200, JSON.stringify(res.body));
                     expect(res.body).to.equal(true, JSON.stringify(res.body));
                 });
 
-            chai.request(server)
-                .get(`/whitelist/verify?pool_id=3a77d059474c1143d0d9cfc55f1d8601099a37c30c943f2807d6a7aa9eddd386&address=0x${addr_hex}`)
-                .end((err, res) => {
-                    expect(res.status).to.equal(200, JSON.stringify(res.body));
-                    expect(res.body).to.equal(true, JSON.stringify(res.body));
-                    done();
-                });
+            for (let i = 0; i < MAX_ADDR; i++) {
+                chai.request(server)
+                    .get(`/whitelist/verify?pool_id=${POOL_ID}&address=${address[i]}`)
+                    .end((err, res) => {
+                        expect(res.status).to.equal(200, JSON.stringify(res.body));
+                        expect(res.body).to.equal(true, JSON.stringify(res.body));
+                    });
+            }
+
+            done();
         });
     });
 });

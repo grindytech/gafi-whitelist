@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const { hex_to_ss58 } = require('../utils/key-util');
 const { validateAddress } = require('@polkadot/util-crypto');
 dotenv.config();
+const PATH = process.env.WHITELIST_PATH || "whitelist";
 
 
 module.exports = {
@@ -30,7 +31,7 @@ module.exports = {
       return;
     }
 
-    let path = `whitelist/${pool_id}.json`;
+    let path = `${PATH}/${pool_id}.json`;
 
     let list;
     try {
@@ -67,8 +68,8 @@ module.exports = {
   },
 
   add: async function (req, res) {
-    let pool_id = req.query.pool_id;
-    let address = req.query.address;
+    let pool_id = req.body.pool_id;
+    let address = req.body.address;
 
     // validate pool_id
     if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
@@ -79,10 +80,12 @@ module.exports = {
 
     // validate address
     try {
-      if (validateAddress(address) == false) {
-        res.status(400)
-        res.send({ "err": `invalid address` });
-        return;
+      for (const addr of address) {
+        if (validateAddress(addr) == false) {
+          res.status(400)
+          res.send({ "err": `invalid address` });
+          return;
+        }
       }
     } catch (err) {
       res.status(400)
@@ -90,7 +93,7 @@ module.exports = {
       return;
     }
 
-    let path = `whitelist/${pool_id}.json`;
+    let path = `${PATH}/${pool_id}.json`;
 
     let list;
     try {
@@ -102,7 +105,7 @@ module.exports = {
         return;
       }
 
-      list.whitelist.push(address);
+      list.whitelist.push(...address);
 
       var json = JSON.stringify(list);
       fs.writeFileSync(path, json);
@@ -113,5 +116,50 @@ module.exports = {
     }
     res.status(200);
     res.json(true);
+  },
+
+  create: async function (req, res) {
+    let pool_id = req.body.pool_id;
+    let address = req.body.address;
+
+    // validate pool_id
+    if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
+      res.status(400)
+      res.send({ "err": `pool_id not correct ${pool_id}` });
+      return;
+    }
+
+    // validate address
+    try {
+      for (const addr of address) {
+        if (validateAddress(addr) == false) {
+          res.status(400)
+          res.send({ "err": `invalid address` });
+          return;
+        }
+      }
+    } catch (err) {
+      res.status(400)
+      res.send({ "err": `invalid address: ${err.message}` });
+      return;
+    }
+
+    let path = `${PATH}/${pool_id}.json`;
+    let data = {
+      "pool_id": pool_id,
+      "whitelist": address,
+    };
+
+    fs.writeFile(path, JSON.stringify(data), { flag: 'wx' }, function (err) {
+
+      if (err) {
+        res.status(400)
+        res.send({ "err": `${err}` });
+        return;
+      } else {
+        res.status(200);
+        res.json("create file success");
+      }
+    });
   }
 }
