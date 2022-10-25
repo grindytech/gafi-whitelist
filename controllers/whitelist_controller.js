@@ -56,14 +56,19 @@ module.exports = {
 
     // validate address
     try {
-      if (validateAddress(address) == false) {
+
+      if (address.startsWith("0x")) {
+        address = address.substring(2);
+      }
+
+      if (validateAddress("0x" + address) == false) {
         res.status(400)
         res.send({ "err": `invalid address` });
         return;
       }
     } catch (err) {
       res.status(400)
-      res.send({ "err": `invalid address: ${err.message()}` });
+      res.send({ "err": `invalid address: ${err}` });
       return;
     }
 
@@ -107,6 +112,12 @@ module.exports = {
     let pool_id = req.body.pool_id;
     let address = req.body.address;
 
+    for (let i = 0; i< address.length; i++)  {
+      if (address[i].startsWith("0x")) {
+        address[i] = address[i].substring(2);
+      }
+    }
+
     // validate pool_id
     if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
       res.status(400)
@@ -117,7 +128,7 @@ module.exports = {
     // validate address
     try {
       for (const addr of address) {
-        if (validateAddress(addr) == false) {
+        if (validateAddress("0x" + addr) == false) {
           res.status(400)
           res.send({ "err": `invalid address` });
           return;
@@ -158,6 +169,12 @@ module.exports = {
     let pool_id = req.body.pool_id;
     let address = req.body.address;
 
+    for (let i = 0; i< address.length; i++)  {
+      if (address[i].startsWith("0x")) {
+        address[i] = address[i].substring(2);
+      }
+    }
+
     // validate pool_id
     if (pool_id === undefined || pool_id === null || pool_id.length != 64) {
       res.status(400)
@@ -168,7 +185,7 @@ module.exports = {
     // validate address
     try {
       for (const addr of address) {
-        if (validateAddress(addr) == false) {
+        if (validateAddress("0x" + addr) == false) {
           res.status(400)
           res.send({ "err": `invalid address` });
           return;
